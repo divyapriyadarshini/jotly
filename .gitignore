@@ -1,0 +1,26 @@
+# Dependencies (hundreds of MB, re-creatable with npm install)
+node_modules/
+
+# Secrets and local config. NEVER commit these.
+.env
+.env.local
+.env.*.local
+
+# Build output (generated, not hand-written)
+dist/
+build/
+coverage/
+
+# Logs
+*.log
+npm-debug.log*
+
+# macOS junk
+.DS_Store
+
+# Editor settings (personal)
+.idea/
+*.swp
+
+# Docker local data
+pgdata/
