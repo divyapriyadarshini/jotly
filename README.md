@@ -12,6 +12,20 @@ at once, and changes merge correctly, even after going offline and reconnecting.
 - Database: PostgreSQL
 - DevOps: Docker, GitHub Actions
 
+## Project structure
+
+- `client/`: the React website (coming in Phase 3)
+- `server/`: the Node.js backend (coming in Phase 2)
+- `docs/`: architecture diagrams and notes
+
 ## Local development
 
-Setup instructions will be added as the project grows.
+Requirements: Node 22 (use `nvm use`), Docker Desktop.
+
+```bash
+cp .env.example .env     # then set your own POSTGRES_PASSWORD
+docker compose up -d     # starts Postgres
+npm install              # installs lint and format tools
+```
+
+Useful commands: `npm run lint`, `npm run format`.
