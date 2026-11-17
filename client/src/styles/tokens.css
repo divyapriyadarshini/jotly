@@ -1,0 +1,63 @@
+:root {
+  /* paper */
+  --paper: #f6f0e1;
+  --paper-raised: #fbf8ef;
+  --paper-sunk: #ece4cf;
+
+  /* ink (forest green) */
+  --ink: #1b3a2a;
+  --ink-soft: #2c5440;
+  --text-secondary: #4a5e51;
+  --text-muted: #5f7064;
+  --hairline: rgb(27 58 42 / 0.18);
+  --hairline-strong: rgb(27 58 42 / 0.4);
+
+  /* accent (burnt orange) */
+  --accent: #a8481a;
+  --accent-hover: #8c3a12;
+  --accent-tint: #f1d9c4;
+
+  /* collaborator cursors (used from Phase 5) */
+  --cursor-1: #2f6b4f;
+  --cursor-2: #c2641f;
+  --cursor-3: #7a5230;
+  --cursor-4: #b8901f;
+  --cursor-5: #55703a;
+
+  /* fonts (Fontsource names its variable fonts "<Name> Variable") */
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-body: 'Source Serif 4 Variable', Georgia, serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
+
+  /* type scale (about 1.25 ratio) */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-doc: 1.125rem;
+  --text-lg: 1.375rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.25rem;
+  --text-hero: clamp(2.75rem, 6vw, 4.5rem);
+
+  /* spacing (4px base) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-24: 6rem;
+
+  /* layout */
+  --margin-col: 15rem;
+  --measure: 42.5rem;
+
+  /* borders, radius, shadow, focus */
+  --border-hair: 1px solid var(--hairline);
+  --border-ink: 1.5px solid var(--ink);
+  --radius: 2px;
+  --shadow-page: 0 1px 0 var(--hairline), 0 12px 24px -16px rgb(27 58 42 / 0.35);
+  --focus-ring: 2px solid var(--accent);
+}

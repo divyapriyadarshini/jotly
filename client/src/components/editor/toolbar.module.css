@@ -1,0 +1,51 @@
+.toolbar {
+  position: sticky;
+  top: var(--space-2);
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  margin-bottom: var(--space-4);
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-hair);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+}
+
+.button {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  padding: 0 var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.button:hover:not(:disabled) {
+  background: var(--paper-sunk);
+}
+
+.button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper-raised);
+}
+
+.button[aria-pressed='true']:hover:not(:disabled) {
+  background: var(--ink-soft);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.divider {
+  width: 1px;
+  height: 1.25rem;
+  margin-inline: var(--space-2);
+  background: var(--hairline-strong);
+}
