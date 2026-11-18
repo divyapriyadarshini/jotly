@@ -93,6 +93,12 @@
   color: var(--text-secondary);
 }
 
+.docId {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
 @media (max-width: 56.25rem) {
   .sheet {
     padding: var(--space-6) var(--space-4);

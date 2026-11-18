@@ -1,19 +1,24 @@
+import Collaboration from '@tiptap/extension-collaboration';
 import { type Editor, EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useState } from 'react';
+import type { Doc } from 'yjs';
+import { type SyncState, useCollabDoc } from '../collab/useCollabDoc';
+import { SyncStatus } from '../components/editor/SyncStatus';
 import { Toolbar } from '../components/editor/Toolbar';
 import { MarginColumn } from '../components/layout/MarginColumn';
 import { PageShell } from '../components/layout/PageShell';
 import { TextColumn } from '../components/layout/TextColumn';
 import { MarginNote } from '../components/ui/MarginNote';
-import { Stamp } from '../components/ui/Stamp';
 import styles from './editor-page.module.css';
 
-const initialContent = `
-  <h2>A first page</h2>
-  <p>Start typing. Select a word and press <strong>Cmd+B</strong>, or use the toolbar above.</p>
-  <p>Soon a second person will be able to open this same page and write beside you.</p>
-`;
+const DOC_ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
+
+// Phase 8 replaces this with real shareable links. For now: /?doc=notes
+function getDocIdFromUrl(): string {
+  const id = new URLSearchParams(window.location.search).get('doc');
+  return id && DOC_ID_PATTERN.test(id) ? id : 'demo';
+}
 
 function WordCount({ editor }: { editor: Editor }) {
   const words = useEditorState({
@@ -28,12 +33,18 @@ function WordCount({ editor }: { editor: Editor }) {
   );
 }
 
-export function EditorPage() {
+type EditorWorkspaceProps = { docId: string; ydoc: Doc; syncState: SyncState };
+
+function EditorWorkspace({ docId, ydoc, syncState }: EditorWorkspaceProps) {
   const [title, setTitle] = useState('Untitled document');
 
   const editor = useEditor({
-    extensions: [StarterKit.configure({ heading: { levels: [1, 2, 3] } })],
-    content: initialContent,
+    extensions: [
+      // Collaboration brings its own undo/redo, so StarterKit's must be off.
+      StarterKit.configure({ heading: { levels: [1, 2, 3] }, undoRedo: false }),
+      // The shared document is the single source of truth. No `content` option here.
+      Collaboration.configure({ document: ydoc }),
+    ],
     editorProps: {
       attributes: { 'aria-label': 'Document body' },
     },
@@ -43,8 +54,9 @@ export function EditorPage() {
     <PageShell>
       <MarginColumn>
         <p className={styles.wordmark}>Jotly</p>
-        <Stamp>Local draft</Stamp>
-        <MarginNote>Only you can see this page. Sharing and live cursors come next.</MarginNote>
+        <SyncStatus state={syncState} />
+        <p className={styles.docId}>Room: {docId}</p>
+        <MarginNote>Open this page in a second tab. What you type appears in both.</MarginNote>
         {editor && <WordCount editor={editor} />}
       </MarginColumn>
 
@@ -62,4 +74,17 @@ export function EditorPage() {
       </TextColumn>
     </PageShell>
   );
+}
+
+export function EditorPage() {
+  const [docId] = useState(getDocIdFromUrl);
+  const { ydoc, state } = useCollabDoc(docId);
+
+  // The shared document is created in an effect, so it doesn't exist on the very first render.
+  if (!ydoc) {
+    return null;
+  }
+
+  // key={ydoc.clientID}: if the Y.Doc is ever replaced, React builds a brand-new editor for it.
+  return <EditorWorkspace key={ydoc.clientID} docId={docId} ydoc={ydoc} syncState={state} />;
 }

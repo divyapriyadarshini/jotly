@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { getCollabStats } from '../collab/registry.js';
 
 export const healthRouter = Router();
 
@@ -9,5 +10,6 @@ healthRouter.get('/', (_req, res) => {
     status: 'ok',
     uptimeSeconds: Math.round(process.uptime()),
     timestamp: new Date().toISOString(),
+    collab: getCollabStats(),
   });
 });

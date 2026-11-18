@@ -13,6 +13,11 @@
   transform: rotate(-2deg);
 }
 
+.alert {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .note {
   max-width: 14rem;
   font-size: var(--text-sm);
