@@ -104,3 +104,27 @@
     padding: var(--space-6) var(--space-4);
   }
 }
+
+/* Remote carets and selections. These elements are created by caretRender.ts,
+   inside the editor, so :global() stops CSS Modules from renaming the classes. */
+.sheet :global(.remote-caret) {
+  position: relative;
+  margin-inline: -1px;
+  border-inline: 1px solid;
+  pointer-events: none;
+  word-break: normal;
+}
+
+.sheet :global(.remote-caret-label) {
+  position: absolute;
+  top: -1.45em;
+  left: -1px;
+  padding: 0.05rem 0.35rem;
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  user-select: none;
+}

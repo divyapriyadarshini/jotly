@@ -1,9 +1,15 @@
 import Collaboration from '@tiptap/extension-collaboration';
+import CollaborationCaret from '@tiptap/extension-collaboration-caret';
 import { type Editor, EditorContent, useEditor, useEditorState } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useState } from 'react';
+import type { WebsocketProvider } from 'y-websocket';
 import type { Doc } from 'yjs';
+import { renderCaret, renderSelection } from '../collab/caretRender';
+import { type CollabUser, getGuestIdentity } from '../collab/identity';
 import { type SyncState, useCollabDoc } from '../collab/useCollabDoc';
+import { usePresence } from '../collab/usePresence';
+import { PresenceList } from '../components/editor/PresenceList';
 import { SyncStatus } from '../components/editor/SyncStatus';
 import { Toolbar } from '../components/editor/Toolbar';
 import { MarginColumn } from '../components/layout/MarginColumn';
@@ -33,10 +39,17 @@ function WordCount({ editor }: { editor: Editor }) {
   );
 }
 
-type EditorWorkspaceProps = { docId: string; ydoc: Doc; syncState: SyncState };
+type EditorWorkspaceProps = {
+  docId: string;
+  ydoc: Doc;
+  provider: WebsocketProvider;
+  user: CollabUser;
+  syncState: SyncState;
+};
 
-function EditorWorkspace({ docId, ydoc, syncState }: EditorWorkspaceProps) {
+function EditorWorkspace({ docId, ydoc, provider, user, syncState }: EditorWorkspaceProps) {
   const [title, setTitle] = useState('Untitled document');
+  const people = usePresence(provider);
 
   const editor = useEditor({
     extensions: [
@@ -44,6 +57,13 @@ function EditorWorkspace({ docId, ydoc, syncState }: EditorWorkspaceProps) {
       StarterKit.configure({ heading: { levels: [1, 2, 3] }, undoRedo: false }),
       // The shared document is the single source of truth. No `content` option here.
       Collaboration.configure({ document: ydoc }),
+      // Draws other people's carets and selections, using awareness from the provider.
+      CollaborationCaret.configure({
+        provider,
+        user,
+        render: renderCaret,
+        selectionRender: renderSelection,
+      }),
     ],
     editorProps: {
       attributes: { 'aria-label': 'Document body' },
@@ -56,6 +76,7 @@ function EditorWorkspace({ docId, ydoc, syncState }: EditorWorkspaceProps) {
         <p className={styles.wordmark}>Jotly</p>
         <SyncStatus state={syncState} />
         <p className={styles.docId}>Room: {docId}</p>
+        <PresenceList people={people} />
         <MarginNote>Open this page in a second tab. What you type appears in both.</MarginNote>
         {editor && <WordCount editor={editor} />}
       </MarginColumn>
@@ -78,13 +99,23 @@ function EditorWorkspace({ docId, ydoc, syncState }: EditorWorkspaceProps) {
 
 export function EditorPage() {
   const [docId] = useState(getDocIdFromUrl);
-  const { ydoc, state } = useCollabDoc(docId);
+  const [user] = useState(getGuestIdentity);
+  const { ydoc, provider, state } = useCollabDoc(docId, user);
 
   // The shared document is created in an effect, so it doesn't exist on the very first render.
-  if (!ydoc) {
+  if (!ydoc || !provider) {
     return null;
   }
 
   // key={ydoc.clientID}: if the Y.Doc is ever replaced, React builds a brand-new editor for it.
-  return <EditorWorkspace key={ydoc.clientID} docId={docId} ydoc={ydoc} syncState={state} />;
+  return (
+    <EditorWorkspace
+      key={ydoc.clientID}
+      docId={docId}
+      ydoc={ydoc}
+      provider={provider}
+      user={user}
+      syncState={state}
+    />
+  );
 }
