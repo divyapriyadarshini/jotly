@@ -19,8 +19,9 @@ const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().min(1).max(65535).default(4000),
   CLIENT_ORIGIN: z.string().url().default('http://localhost:5173'),
-  // Required from Phase 6 / 7. Optional for now so Phase 2 runs without them.
-  DATABASE_URL: z.string().url().optional(),
+  // REQUIRED since Phase 6: documents are stored in Postgres.
+  DATABASE_URL: z.string().url(),
+  // Required from Phase 7. Optional for now.
   JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters').optional(),
 });
 
