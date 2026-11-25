@@ -3,7 +3,7 @@ import type { Duplex } from 'node:stream';
 import { WebSocketServer } from 'ws';
 import { env } from '../config/env.js';
 import { setupConnection } from './connection.js';
-import { getDoc } from './registry.js';
+import { getDoc, releaseIfIdle } from './registry.js';
 
 const COLLAB_PATH_PREFIX = '/yjs/';
 const DOC_NAME_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
@@ -41,9 +41,27 @@ export function attachCollabServer(server: Server): WebSocketServer {
 
     // Phase 7: check the user's login and document permissions here, before upgrading.
 
-    wss.handleUpgrade(request, socket, head, (ws) => {
-      setupConnection(ws, getDoc(docName));
-    });
+    // We now wait for the database, so a network error could arrive before the WebSocket
+    // library takes over the socket. Without a listener, Node would crash on that error.
+    socket.on('error', () => socket.destroy());
+
+    getDoc(docName)
+      .then((doc) => {
+        if (socket.destroyed) {
+          // The browser gave up while we were loading. Start the idle countdown.
+          releaseIfIdle(doc);
+          return;
+        }
+        wss.handleUpgrade(request, socket, head, (ws) => {
+          setupConnection(ws, doc);
+        });
+      })
+      .catch((error: unknown) => {
+        console.error(`Could not open document "${docName}":`, error);
+        if (!socket.destroyed) {
+          rejectUpgrade(socket, 503, 'Service Unavailable');
+        }
+      });
   });
 
   return wss;

@@ -13,6 +13,9 @@ export class SharedDoc extends Y.Doc {
   // connection -> the awareness ids (cursors) that connection controls
   readonly conns = new Map<WebSocket, Set<number>>();
   readonly awareness: awarenessProtocol.Awareness;
+  // NEW in Phase 6C: called when the last browser leaves. The registry sets this to
+  // start the idle-eviction countdown. (A callback avoids a circular import.)
+  onEmpty: (() => void) | null = null;
 
   constructor(name: string) {
     super({ gc: true });

@@ -14,6 +14,11 @@ export function closeConnection(doc: SharedDoc, conn: WebSocket): void {
     doc.conns.delete(conn);
     // Remove this browser's cursors/presence so ghosts don't linger.
     awarenessProtocol.removeAwarenessStates(doc.awareness, Array.from(controlledIds), null);
+    // NEW in Phase 6C: if that was the last browser, tell the registry so it can
+    // start the countdown to evict this document from memory.
+    if (doc.conns.size === 0) {
+      doc.onEmpty?.();
+    }
   }
   conn.close();
 }
