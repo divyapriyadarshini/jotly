@@ -21,8 +21,9 @@ const envSchema = z.object({
   CLIENT_ORIGIN: z.string().url().default('http://localhost:5173'),
   // REQUIRED since Phase 6: documents are stored in Postgres.
   DATABASE_URL: z.string().url(),
-  // Required from Phase 7. Optional for now.
-  JWT_SECRET: z.string().min(16, 'JWT_SECRET must be at least 16 characters').optional(),
+  // REQUIRED since Phase 7: the secret that signs login tokens. Anyone who knows it can
+  // forge a login, so it must be long, random, and never committed to git.
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
 });
 
 const parsed = envSchema.safeParse(process.env);
