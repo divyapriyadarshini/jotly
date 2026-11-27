@@ -3,6 +3,7 @@ import express from 'express';
 import { env } from './config/env.js';
 import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 import { authRouter } from './routes/auth.js';
+import { documentsRouter } from './routes/documents.js';
 import { healthRouter } from './routes/health.js';
 
 export function createApp() {
@@ -16,7 +17,8 @@ export function createApp() {
 
   // Routes
   app.use('/health', healthRouter);
-  app.use('/auth', authRouter); // NEW in Phase 7A
+  app.use('/auth', authRouter);
+  app.use('/documents', documentsRouter); // NEW in Phase 7B
 
   // Must come AFTER all routes.
   app.use(notFoundHandler);

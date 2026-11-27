@@ -10,7 +10,8 @@
     "start": "node dist/index.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "db:migrate": "tsx src/db/migrate-cli.ts",
-    "db:check-persistence": "tsx src/db/persistence-check.ts"
+    "db:check-persistence": "tsx src/db/persistence-check.ts",
+    "db:check-access": "tsx src/db/access-check.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
