@@ -1,0 +1,30 @@
+.wordmark {
+    margin: 0;
+    font-family: var(--font-heading, 'Fraunces Variable', Georgia, serif);
+    font-size: 1.6rem;
+}
+
+.heading {
+    margin: 0 0 0.75rem;
+    font-family: var(--font-heading, 'Fraunces Variable', Georgia, serif);
+    font-size: 2rem;
+    line-height: 1.2;
+}
+
+.body {
+    max-width: 34rem;
+    margin: 0 0 1.5rem;
+    line-height: 1.6;
+}
+
+.action {
+    display: inline-block;
+    padding: 0.5rem 0.9rem;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    background: var(--paper-raised, #fbf8ef);
+    color: var(--ink, #1b3a2a);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}

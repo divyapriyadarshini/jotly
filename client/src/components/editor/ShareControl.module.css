@@ -1,0 +1,33 @@
+.root {
+    display: grid;
+    gap: 0.4rem;
+    margin-block: 1rem;
+}
+
+.label {
+    font-family: var(--font-mono, 'JetBrains Mono Variable', monospace);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.select,
+.button {
+    padding: 0.4rem 0.5rem;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    background: var(--paper-raised, #fbf8ef);
+    color: var(--ink, #1b3a2a);
+    font: inherit;
+    font-size: 0.9rem;
+}
+
+.button {
+    cursor: pointer;
+}
+
+.status {
+    min-height: 1.2em;
+    margin: 0;
+    font-size: 0.85rem;
+}
