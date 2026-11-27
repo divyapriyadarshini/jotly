@@ -3,6 +3,7 @@ import * as encoding from 'lib0/encoding';
 import type { RawData, WebSocket } from 'ws';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
 import * as syncProtocol from 'y-protocols/sync.js';
+import { canWrite, type Role } from '../access/roles.js';
 import { closeConnection, MESSAGE_AWARENESS, MESSAGE_SYNC, send } from './protocol.js';
 import type { SharedDoc } from './SharedDoc.js';
 
@@ -18,7 +19,12 @@ function toUint8Array(data: RawData): Uint8Array {
   return new Uint8Array(data);
 }
 
-function handleMessage(conn: WebSocket, doc: SharedDoc, message: Uint8Array): void {
+function handleMessage(
+  conn: WebSocket,
+  doc: SharedDoc,
+  message: Uint8Array,
+  writable: boolean,
+): void {
   try {
     const encoder = encoding.createEncoder();
     const decoder = decoding.createDecoder(message);
@@ -26,6 +32,17 @@ function handleMessage(conn: WebSocket, doc: SharedDoc, message: Uint8Array): vo
 
     switch (messageType) {
       case MESSAGE_SYNC: {
+        if (!writable) {
+          // Sync messages come in three kinds: step 1 ("what do you have?") is a read;
+          // step 2 and update both CARRY CHANGES. A read-only viewer may only send step 1.
+          // We peek with a second decoder so the real one is not disturbed.
+          const peek = decoding.createDecoder(message);
+          decoding.readVarUint(peek); // skip the outer message type
+          if (decoding.readVarUint(peek) !== syncProtocol.messageYjsSyncStep1) {
+            return; // dropped, silently: even a hacked client cannot change the document
+          }
+        }
+
         encoding.writeVarUint(encoder, MESSAGE_SYNC);
         // Applies incoming updates to the doc, and writes a reply if one is needed.
         syncProtocol.readSyncMessage(decoder, encoder, doc, conn);
@@ -36,6 +53,7 @@ function handleMessage(conn: WebSocket, doc: SharedDoc, message: Uint8Array): vo
         break;
       }
       case MESSAGE_AWARENESS: {
+        // Presence (names, carets) is allowed for everyone, viewers included.
         awarenessProtocol.applyAwarenessUpdate(
           doc.awareness,
           decoding.readVarUint8Array(decoder),
@@ -49,10 +67,14 @@ function handleMessage(conn: WebSocket, doc: SharedDoc, message: Uint8Array): vo
   }
 }
 
-export function setupConnection(conn: WebSocket, doc: SharedDoc): void {
+export function setupConnection(conn: WebSocket, doc: SharedDoc, role: Role): void {
+  // Decided once, when the connection opens. (If the owner later removes this person's
+  // access, they stay connected until they leave: a known limitation.)
+  const writable = canWrite(role);
+
   doc.conns.set(conn, new Set());
 
-  conn.on('message', (data: RawData) => handleMessage(conn, doc, toUint8Array(data)));
+  conn.on('message', (data: RawData) => handleMessage(conn, doc, toUint8Array(data), writable));
 
   // Heartbeat: ping regularly; if no pong came back since the last ping, drop the connection.
   let pongReceived = true;
